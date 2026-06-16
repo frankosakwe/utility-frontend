@@ -30,6 +30,23 @@ const STATUS_COLORS: Record<FleetAsset["status"], string> = {
   maintenance: "bg-yellow-500",
 };
 
+function relativeTime(ts: number): string {
+  const seconds = Math.floor((Date.now() - ts) / 1000);
+  if (seconds < 10) return "just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+function resourceColor(pct: number): string {
+  if (pct < 0.5) return "bg-green-500";
+  if (pct < 0.8) return "bg-yellow-500";
+  return "bg-red-500";
+}
+
 export function FleetGrid() {
   const [filter, setFilter] = useState<FleetAsset["status"] | "all">("all");
   const [search, setSearch] = useState("");
@@ -70,7 +87,10 @@ export function FleetGrid() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"
+        style={{ contentVisibility: "auto" }}
+      >
         {filtered.map((asset) => (
           <div
             key={asset.id}
@@ -88,13 +108,16 @@ export function FleetGrid() {
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-green-500 rounded-full transition-all"
+                    className={`h-full rounded-full transition-all ${resourceColor(asset.resource)}`}
                     style={{ width: `${asset.resource * 100}%` }}
                   />
                 </div>
                 <span className="tabular-nums">
                   {(asset.resource * 100).toFixed(0)}%
                 </span>
+              </div>
+              <div className="text-muted-foreground">
+                {relativeTime(asset.lastPing)}
               </div>
             </div>
           </div>
