@@ -6,8 +6,8 @@ import type { QueuedTransaction } from "../../src/types/retry-queue";
  */
 test.describe("useRetryQueue Hook", () => {
   test.beforeEach(async ({ page }) => {
-    // Create a data URL that provides a proper origin for localStorage
-    await page.goto("data:text/html,<html><body></body></html>");
+    // Navigate to localhost for proper localStorage support
+    await page.goto("http://localhost:3000");
   });
 
   test("should initialize with empty queue", async ({ page }) => {
