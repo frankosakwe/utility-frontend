@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import type { QueuedTransaction } from "../../src/types/retry-queue";
 
 /**
  * Test suite for useRetryQueue hook serialization, deserialization, and state management
@@ -237,9 +238,9 @@ test.describe("useRetryQueue Hook", () => {
     }, complexQueue);
 
     expect(stored).toHaveLength(5);
-    expect(stored.filter((t: any) => t.status === "confirmed")).toHaveLength(1);
-    expect(stored.filter((t: any) => t.status === "failed")).toHaveLength(1);
-    expect(stored.filter((t: any) => t.status === "retrying")).toHaveLength(1);
+    expect(stored.filter((t: QueuedTransaction) => t.status === "confirmed")).toHaveLength(1);
+    expect(stored.filter((t: QueuedTransaction) => t.status === "failed")).toHaveLength(1);
+    expect(stored.filter((t: QueuedTransaction) => t.status === "retrying")).toHaveLength(1);
   });
 
   test("should maintain transaction timestamps", async ({ page }) => {
@@ -291,7 +292,7 @@ test.describe("useRetryQueue Hook", () => {
       });
     }, testCases);
 
-    results.forEach((tx: any, i: number) => {
+    results.forEach((tx: QueuedTransaction, i: number) => {
       expect(tx.maxRetries).toBe(testCases[i].maxRetries);
       expect(tx.retryCount).toBe(testCases[i].retryCount);
     });
@@ -324,7 +325,7 @@ test.describe("useRetryQueue Hook", () => {
       return JSON.parse(serialized);
     }, txs);
 
-    results.forEach((tx: any, i: number) => {
+    results.forEach((tx: QueuedTransaction, i: number) => {
       expect(tx.error).toBe(errorMessages[i]);
     });
   });

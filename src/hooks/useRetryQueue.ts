@@ -1,28 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-
-interface QueuedTransaction {
-  id: string;
-  txHash: string | null;
-  status: "pending" | "submitted" | "confirmed" | "failed" | "retrying";
-  retryCount: number;
-  maxRetries: number;
-  error: string | null;
-  createdAt: number;
-  nextRetryAt?: number;
-}
-
-interface UseRetryQueueReturn {
-  queue: QueuedTransaction[];
-  enqueue: (id: string, maxRetries?: number) => void;
-  updateTxHash: (id: string, txHash: string) => void;
-  markConfirmed: (id: string) => void;
-  markFailed: (id: string, error: string) => void;
-  retry: (id: string) => Promise<void>;
-  purge: () => void;
-  pendingCount: number;
-}
+import type { QueuedTransaction, UseRetryQueueReturn } from "@/types/retry-queue";
 
 const RETRY_DELAYS = [1000, 5000, 15000, 30000, 60000];
 const STORAGE_KEY = "utility-retry-queue";
