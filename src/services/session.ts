@@ -11,6 +11,7 @@ interface SessionPayload {
 }
 
 const SESSION_KEY = "utility-session";
+const WALLET_SESSION_KEY = "utility-wallet-session";
 const REFRESH_INTERVAL = 60_000;
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
@@ -113,13 +114,24 @@ function stopRefreshTimer() {
   }
 }
 
+function isWalletConnected(address: string): boolean {
+  try {
+    const raw = localStorage.getItem(WALLET_SESSION_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    return parsed.address === address;
+  } catch {
+    return false;
+  }
+}
+
 export function monitorWalletLock(
   address: string,
   onLocked: () => void
 ): () => void {
   const interval = setInterval(() => {
-    const session = getSession();
-    if (!session || session.address !== address) {
+    if (!isWalletConnected(address)) {
+      destroySession();
       onLocked();
       clearInterval(interval);
     }
