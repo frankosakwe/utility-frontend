@@ -6,8 +6,12 @@ import type { QueuedTransaction } from "../../src/types/retry-queue";
  */
 test.describe("useRetryQueue Hook", () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to localhost for proper localStorage support
-    await page.goto("http://localhost:3000");
+    // Use about:blank with addInitScript for localStorage support without needing dev server
+    await page.goto("about:blank");
+    await page.addInitScript(() => {
+      // This runs before any page scripts
+      (window as any).localStorage = window.localStorage || {};
+    });
   });
 
   test("should initialize with empty queue", async ({ page }) => {
