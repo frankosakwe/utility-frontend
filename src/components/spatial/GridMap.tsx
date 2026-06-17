@@ -11,7 +11,17 @@ interface GridNode {
   status: "active" | "idle" | "fault";
 }
 
+// Seeded random number generator for consistent rendering
+function seededRandom(seed: number): () => number {
+  let current = seed;
+  return () => {
+    current = (current * 9301 + 49297) % 233280;
+    return current / 233280;
+  };
+}
+
 function generateNodes(count: number, width: number, height: number): GridNode[] {
+  const random = seededRandom(123); // Fixed seed for consistency
   const nodes: GridNode[] = [];
   const cols = Math.ceil(Math.sqrt(count));
   const rows = Math.ceil(count / cols);
@@ -20,12 +30,18 @@ function generateNodes(count: number, width: number, height: number): GridNode[]
   for (let i = 0; i < count; i++) {
     const col = i % cols;
     const row = Math.floor(i / cols);
+    const rand1 = random();
+    const rand2 = random();
+    const rand3 = random();
+    const rand4 = random();
+    const rand5 = random();
+    
     nodes.push({
       id: `node-${i}`,
-      x: col * cellW + cellW / 2 + (Math.random() - 0.5) * cellW * 0.4,
-      y: row * cellH + cellH / 2 + (Math.random() - 0.5) * cellH * 0.4,
-      resource: 0.2 + Math.random() * 0.8,
-      status: Math.random() > 0.15 ? "active" : Math.random() > 0.5 ? "idle" : "fault",
+      x: col * cellW + cellW / 2 + (rand1 - 0.5) * cellW * 0.4,
+      y: row * cellH + cellH / 2 + (rand2 - 0.5) * cellH * 0.4,
+      resource: 0.2 + rand3 * 0.8,
+      status: rand4 > 0.15 ? "active" : rand5 > 0.5 ? "idle" : "fault",
     });
   }
   return nodes;

@@ -36,6 +36,10 @@ export function createSession(
   network: string,
   ttlMs = 30 * 60 * 1000
 ): SessionPayload {
+  if (typeof window === "undefined") {
+    throw new Error("createSession can only be called in browser environment");
+  }
+  
   const payload: SessionPayload = {
     address,
     network,
@@ -51,6 +55,8 @@ export function createSession(
 }
 
 export function getSession(): SessionPayload | null {
+  if (typeof window === "undefined") return null;
+  
   try {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
@@ -73,6 +79,8 @@ export function validateSession(address: string): boolean {
 }
 
 export function destroySession(): void {
+  if (typeof window === "undefined") return;
+  
   localStorage.removeItem(SESSION_KEY);
   setSessionToken(null);
   notify(null);
@@ -80,6 +88,8 @@ export function destroySession(): void {
 }
 
 export function refreshSession(): SessionPayload | null {
+  if (typeof window === "undefined") return null;
+  
   const session = getSession();
   if (!session) return null;
   const refreshed: SessionPayload = {

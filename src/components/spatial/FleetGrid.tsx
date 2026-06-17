@@ -12,17 +12,40 @@ interface FleetAsset {
   resource: number;
 }
 
-const ASSETS: FleetAsset[] = Array.from({ length: 48 }, (_, i) => ({
-  id: `asset-${i}`,
-  name: `Meter-${String(i + 1).padStart(3, "0")}`,
-  gridId: `grid-${Math.floor(i / 6) + 1}`,
-  status: ((["online", "offline", "maintenance"] as const)[
-    Math.random() > 0.15 ? 0 : Math.random() > 0.5 ? 1 : 2
-  ]),
-  uptime: 95 + Math.random() * 5,
-  lastPing: Date.now() - Math.floor(Math.random() * 60000),
-  resource: 0.3 + Math.random() * 0.7,
-}));
+// Seeded random number generator for consistent SSR/client rendering
+function seededRandom(seed: number): () => number {
+  let current = seed;
+  return () => {
+    current = (current * 9301 + 49297) % 233280;
+    return current / 233280;
+  };
+}
+
+// Generate assets with seeded random for SSR safety
+function generateAssets(): FleetAsset[] {
+  const random = seededRandom(42); // Fixed seed for consistency
+  return Array.from({ length: 48 }, (_, i) => {
+    const statusRand1 = random();
+    const statusRand2 = random();
+    const uptimeRand = random();
+    const pingRand = random();
+    const resourceRand = random();
+    
+    return {
+      id: `asset-${i}`,
+      name: `Meter-${String(i + 1).padStart(3, "0")}`,
+      gridId: `grid-${Math.floor(i / 6) + 1}`,
+      status: ((["online", "offline", "maintenance"] as const)[
+        statusRand1 > 0.15 ? 0 : statusRand2 > 0.5 ? 1 : 2
+      ]),
+      uptime: 95 + uptimeRand * 5,
+      lastPing: 1700000000000 - Math.floor(pingRand * 60000), // Fixed base timestamp
+      resource: 0.3 + resourceRand * 0.7,
+    };
+  });
+}
+
+const ASSETS: FleetAsset[] = generateAssets();
 
 const STATUS_COLORS: Record<FleetAsset["status"], string> = {
   online: "bg-green-500",

@@ -26,15 +26,18 @@ export function useWeb3Auth(): UseWeb3AuthReturn {
   const keypairRef = useRef<Keypair | null>(null);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    
     const stored = localStorage.getItem("utility-auth-session");
     if (stored) {
       try {
         const parsed: AuthSession = JSON.parse(stored);
         if (parsed.expiresAt > Date.now()) {
           setSession(parsed);
-          keypairRef.current = Keypair.fromSecret(
-            localStorage.getItem("utility-auth-secret") || ""
-          );
+          const secret = localStorage.getItem("utility-auth-secret");
+          if (secret) {
+            keypairRef.current = Keypair.fromSecret(secret);
+          }
         } else {
           localStorage.removeItem("utility-auth-session");
           localStorage.removeItem("utility-auth-secret");
@@ -54,6 +57,8 @@ export function useWeb3Auth(): UseWeb3AuthReturn {
   }, []);
 
   const connect = useCallback(async () => {
+    if (typeof window === "undefined") return;
+    
     const kp = Keypair.random();
     keypairRef.current = kp;
     const challenge = `Utility-Protocol Auth: ${Date.now()}`;
@@ -71,6 +76,8 @@ export function useWeb3Auth(): UseWeb3AuthReturn {
   }, []);
 
   const disconnect = useCallback(async () => {
+    if (typeof window === "undefined") return;
+    
     keypairRef.current = null;
     setSession(null);
     localStorage.removeItem("utility-auth-session");
